@@ -171,6 +171,24 @@ describe("native login modal integration", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
+  it("stays closed when the startup session check finds no session", async () => {
+    useLoginModalStore.setState({ isOpen: false, recheckTrigger: 0 });
+    const success = vi.fn();
+    await act(async () => { render(<LoginModal onArtCraftAuthSuccess={success} />); });
+    expect(native).toHaveBeenCalledWith("storyteller_get_login_session_command");
+    expect(useLoginModalStore.getState().isOpen).toBe(false);
+    expect(success).not.toHaveBeenCalled();
+    expect(screen.queryByText("Create your account")).toBeNull();
+  });
+
+  it("stays closed when the startup session check fails", async () => {
+    useLoginModalStore.setState({ isOpen: false, recheckTrigger: 0 });
+    native.mockImplementationOnce(async () => { throw new Error("offline"); });
+    await act(async () => { render(<LoginModal />); });
+    expect(useLoginModalStore.getState().isOpen).toBe(false);
+    expect(screen.queryByText("Create your account")).toBeNull();
+  });
+
   it("restores an existing session without showing the login confirmation", async () => {
     native.mockResolvedValueOnce(USER);
     const success = vi.fn();

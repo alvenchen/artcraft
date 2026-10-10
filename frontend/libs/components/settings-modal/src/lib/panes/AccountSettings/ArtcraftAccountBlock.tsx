@@ -4,7 +4,8 @@ import { Button } from "@storyteller/ui-button";
 
 import { UsersApi } from "@storyteller/api";
 import { UserInfo } from "@storyteller/api";
-import { useLoginModalStore } from "@storyteller/ui-login-modal";
+// TODO(login-disabled): Restore alongside the triggerRecheck call sites.
+// import { useLoginModalStore } from "@storyteller/ui-login-modal";
 import { invoke } from "@tauri-apps/api/core";
 
 const usersApi = new UsersApi();
@@ -16,7 +17,8 @@ export interface ArtcraftAccountBlockProps {
 export const ArtcraftAccountBlock = ({
   globalAccountLogoutCallback,
 }: ArtcraftAccountBlockProps) => {
-  const { triggerRecheck } = useLoginModalStore();
+  // TODO(login-disabled): Restore once login entry points are re-enabled:
+  //   const { triggerRecheck } = useLoginModalStore();
   const [artcraftSession, setArtcraftSession] = useState<UserInfo | undefined>(
     undefined
   );
@@ -54,12 +56,14 @@ export const ArtcraftAccountBlock = ({
       globalAccountLogoutCallback(); // TODO: This resets the old global application state
 
 
-      triggerRecheck(); // Trigger modal to recheck session and potentially open
+      // TODO(login-disabled): Re-enable once login entry points are restored.
+      // triggerRecheck(); // Trigger modal to recheck session and potentially open
 
       await invoke("storyteller_purge_credentials_command");
 
     } else {
-      triggerRecheck(); // Open login modal instead of redirecting
+      // TODO(login-disabled): Re-enable once login entry points are restored.
+      // triggerRecheck(); // Open login modal instead of redirecting
     }
   };
 
@@ -73,26 +77,23 @@ export const ArtcraftAccountBlock = ({
           {artcraftSession?.display_name || "Not logged in"}
         </p>
       </div>
-      <Button
-        variant={
-          isCheckingArtcraftSession
-            ? "secondary"
-            : isLoggedIn
-            ? "destructive"
-            : "primary"
-        }
-        className="h-9 shrink-0 px-3"
-        onClick={handleArtcraftButton}
-        disabled={isCheckingArtcraftSession}
-      >
-        {isCheckingArtcraftSession ? (
-          <LoaderCircleIcon className="animate-spin text-sm" />
-        ) : isLoggedIn ? (
-          "Log Out"
-        ) : (
-          "Log In"
-        )}
-      </Button>
+      {/* Login is disabled for now, so the signed-out state has no action. The
+          button only renders while the session check is in flight or when a
+          signed-in account can log out. */}
+      {(isCheckingArtcraftSession || isLoggedIn) && (
+        <Button
+          variant={isCheckingArtcraftSession ? "secondary" : "destructive"}
+          className="h-9 shrink-0 px-3"
+          onClick={handleArtcraftButton}
+          disabled={isCheckingArtcraftSession}
+        >
+          {isCheckingArtcraftSession ? (
+            <LoaderCircleIcon className="animate-spin text-sm" />
+          ) : (
+            "Log Out"
+          )}
+        </Button>
+      )}
     </div>
   );
 };

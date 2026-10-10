@@ -58,6 +58,9 @@ export function LoginModal({
   afterClose.current = onClose;
 
   // A stale startup/recheck response must never reopen the modal after login.
+  // The signed-out branches deliberately do NOT open the modal: the desktop app
+  // no longer gates startup on login, so this check only restores an existing
+  // session. Login entry points are commented out for now.
   useEffect(() => {
     const generation = ++authGeneration.current;
     let active = true;
@@ -75,12 +78,10 @@ export function LoginModal({
         setShowSuccess(false);
         setLoggedInUsername(null);
         setIsLoggedInArtCraft(false);
-        useLoginModalStore.getState().openModal();
       }
     }).catch((error) => {
       if (!active || generation !== authGeneration.current) return;
       setErrorMessage(isDesktopLoginError(error) ? error.message : "Unable to check your account. Please sign in again.");
-      useLoginModalStore.getState().openModal();
     });
     return () => { active = false; };
   }, [recheckTrigger, closeModal, initialIsSignUp]);

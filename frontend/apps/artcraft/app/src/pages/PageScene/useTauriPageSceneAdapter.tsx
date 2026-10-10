@@ -154,6 +154,22 @@ const loadSceneState = async (
   });
 };
 
+// Reasons the 3D editor passes to `promptSignup`, mapped to readable copy so
+// the toast reads as a sentence ("...to save your work") rather than echoing
+// the raw reason string ("...to save").
+const SIGNUP_PROMPT_ACTIONS: Record<string, string> = {
+  save: "save your work",
+  load: "load a saved scene",
+  library: "browse your library",
+  "upload-3d": "upload 3D assets",
+  "upload-image": "upload images",
+  "upload-splat": "upload splats",
+  hint: "save your work",
+};
+
+const signupPromptText = (reason?: string) =>
+  `Log in to ArtCraft to ${(reason && SIGNUP_PROMPT_ACTIONS[reason]) || "use this feature"}.`;
+
 // — Hook ──────────────────────────────────────────────────────────────
 
 export type TauriPageSceneAdapterOptions = {
@@ -293,6 +309,12 @@ export const useTauriPageSceneAdapter = (
 
       showToast: (level: ToastTypes, message: string) =>
         addToast(level, message),
+
+      // Login is disabled in the desktop app for now, so account-gated
+      // editor actions (Save, Load, Generate, Upload) explain themselves
+      // instead of failing silently.
+      promptSignup: (reason?: string) =>
+        addToast(ToastTypes.ERROR, signupPromptText(reason)),
 
       getMediaUrlByToken: async (token) => {
         const mediaFilesApi = new MediaFilesApi();
