@@ -4,7 +4,6 @@ use log::info;
 use crate::core::commands::enqueue::generate_error::{GenerateError, MissingCredentialsReason};
 use crate::core::commands::enqueue::task_enqueue_success::TaskEnqueueSuccess;
 use crate::core::commands::generate::generate_image::providers::artcraft_router::handle_api_providers::handle_api_key_provider;
-use crate::core::commands::generate::generate_image::providers::artcraft_router::handle_web_login_providers::handle_web_login_provider;
 use crate::core::commands::generate::generate_image::tauri_generate_image_request::TauriGenerateImageRequest;
 use crate::core::providers::credentials::payload::provider_credential_payload::ProviderCredentialPayload;
 use crate::core::providers::credentials::provider_credential_key::ProviderCredentialKey;
@@ -36,9 +35,6 @@ pub async fn handle_router(
   match payload {
     ProviderCredentialPayload::ApiKey(api_key_data) => {
       handle_api_key_provider(request, provider, api_key_data.as_str(), app_env_configs, storyteller_creds_manager).await
-    }
-    ProviderCredentialPayload::WebLogin(web_login_data) => {
-      handle_web_login_provider(request, provider, &web_login_data).await
     }
   }
 }

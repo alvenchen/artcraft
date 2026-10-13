@@ -4,13 +4,11 @@ use std::fmt::Display;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 
-use log::{info, warn};
+use log::info;
 
 use crate::core::providers::credentials::payload::api_key::{ApiKeyData, ApiKeyDataError};
 use crate::core::providers::credentials::payload::provider_credential_payload::ProviderCredentialPayload;
-use crate::core::providers::credentials::payload::web_login::{WebLoginData, WebLoginDataError};
 use crate::core::providers::credentials::provider_credential_key::ProviderCredentialKey;
-use crate::core::providers::credentials::provider_credential_type::ProviderCredentialType;
 use crate::core::state::data_dir::app_data_root::AppDataRoot;
 use crate::core::state::data_dir::trait_data_subdir::DataSubdir;
 
@@ -68,18 +66,9 @@ impl ProviderCredentialLoadingCache {
 
     info!("Loading credential from disk: {:?}", file_path);
 
-    let payload = match key.get_type() {
-      ProviderCredentialType::ApiKey => {
-        let data = ApiKeyData::load_from_file(&file_path)
-          .map_err(ProviderCredentialLoadingCacheError::ApiKeyError)?;
-        ProviderCredentialPayload::ApiKey(data)
-      }
-      ProviderCredentialType::WebLogin => {
-        let data = WebLoginData::load_from_file(&file_path)
-          .map_err(ProviderCredentialLoadingCacheError::WebLoginError)?;
-        ProviderCredentialPayload::WebLogin(data)
-      }
-    };
+    let data = ApiKeyData::load_from_file(&file_path)
+      .map_err(ProviderCredentialLoadingCacheError::ApiKeyError)?;
+    let payload = ProviderCredentialPayload::ApiKey(data);
 
     // Store in cache.
     {
@@ -104,18 +93,10 @@ impl ProviderCredentialLoadingCache {
 
     info!("Saving credential to disk: {:?}", file_path);
 
-    match (&payload, key.get_type()) {
-      (ProviderCredentialPayload::ApiKey(data), ProviderCredentialType::ApiKey) => {
+    match &payload {
+      ProviderCredentialPayload::ApiKey(data) => {
         data.save_to_file(&file_path)
           .map_err(ProviderCredentialLoadingCacheError::ApiKeyError)?;
-      }
-      (ProviderCredentialPayload::WebLogin(data), ProviderCredentialType::WebLogin) => {
-        data.save_to_file(&file_path)
-          .map_err(ProviderCredentialLoadingCacheError::WebLoginError)?;
-      }
-      _ => {
-        warn!("Credential type mismatch for key {:?}", key);
-        return Err(ProviderCredentialLoadingCacheError::TypeMismatch);
       }
     }
 
@@ -158,8 +139,6 @@ impl ProviderCredentialLoadingCache {
 pub enum ProviderCredentialLoadingCacheError {
   IoError(std::io::Error),
   ApiKeyError(ApiKeyDataError),
-  WebLoginError(WebLoginDataError),
-  TypeMismatch,
   LockPoisoned,
 }
 
@@ -168,7 +147,6 @@ impl Error for ProviderCredentialLoadingCacheError {
     match self {
       Self::IoError(err) => Some(err),
       Self::ApiKeyError(err) => Some(err),
-      Self::WebLoginError(err) => Some(err),
       _ => None,
     }
   }
@@ -179,8 +157,6 @@ impl Display for ProviderCredentialLoadingCacheError {
     match self {
       Self::IoError(e) => write!(f, "IO error: {}", e),
       Self::ApiKeyError(e) => write!(f, "API key error: {}", e),
-      Self::WebLoginError(e) => write!(f, "Web login error: {}", e),
-      Self::TypeMismatch => write!(f, "Credential type does not match key type"),
       Self::LockPoisoned => write!(f, "Internal lock poisoned"),
     }
   }

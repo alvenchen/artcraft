@@ -3,13 +3,19 @@
   "include": [],
   "references": [
     {
-      "path": "../keybinds"
+      "path": "../../icons"
     },
     {
       "path": "../../tauri-utils"
     },
     {
       "path": "../../model-list"
+    },
+    {
+      "path": "../input"
+    },
+    {
+      "path": "../keybinds"
     },
     {
       "path": "../popover"
@@ -36,19 +42,10 @@
       "path": "../../soundboard"
     },
     {
-      "path": "../input"
-    },
-    {
       "path": "../../tauri-events"
     },
     {
-      "path": "../login-modal"
-    },
-    {
       "path": "../../api"
-    },
-    {
-      "path": "../../icons"
     },
     {
       "path": "../../analytics/google-analytics"

@@ -1,6 +1,6 @@
 import { Modal } from "@storyteller/ui-modal";
 import { useEffect, useState } from "react";
-import { CreditCardIcon, DownloadIcon, FlaskConicalIcon, InfoIcon, KeyboardIcon, PaletteIcon, SettingsIcon, UserIcon, Volume2Icon } from "lucide-react";
+import { CreditCardIcon, DownloadIcon, FlaskConicalIcon, InfoIcon, KeyRoundIcon, KeyboardIcon, PaletteIcon, SettingsIcon, UserIcon, Volume2Icon } from "lucide-react";
 import { DynamicIcon } from "@storyteller/icons";
 import { twMerge } from "tailwind-merge";
 import { KeybindsSettings } from "@storyteller/keybinds";
@@ -8,6 +8,7 @@ import { MiscSettingsPane } from "./panes/MiscSettingsPane";
 import { DownloadsSettingsPane } from "./panes/DownloadsSettingsPane";
 import { AudioSettingsPane } from "./panes/AudioSettingsPane";
 import { AccountSettingsPane } from "./panes/AccountSettings/AccountSettingsPane";
+import { ProviderApiKeysSettingsPane } from "./panes/ProviderApiKeysSettingsPane";
 import { AboutSettingsPane } from "./panes/AboutSettingsPane";
 import { ProviderPrioritySettingsPane } from "./panes/ProviderPrioritySettingsPane";
 import { ExperimentalSettingsPane } from "./panes/ExperimentalSettingsPane";
@@ -32,6 +33,7 @@ type SettingsSection =
   | "appearance"
   | "keybinds"
   | "accounts"
+  | "api_keys"
   | "alerts"
   | "about"
   | "provider_priority"
@@ -71,6 +73,7 @@ export const SettingsModal = ({
     { id: "downloads" as const, label: "Downloads", icon: DownloadIcon },
 
     { id: "accounts" as const, label: "Accounts", icon: UserIcon },
+    { id: "api_keys" as const, label: "API Keys", icon: KeyRoundIcon },
     { id: "billing" as const, label: "Plan & Credits", icon: CreditCardIcon },
 
     /* {
@@ -107,6 +110,8 @@ export const SettingsModal = ({
             globalAccountLogoutCallback={globalAccountLogoutCallback}
           />
         );
+      case "api_keys":
+        return <ProviderApiKeysSettingsPane />;
       case "about":
         return <AboutSettingsPane />;
       case "provider_priority":
