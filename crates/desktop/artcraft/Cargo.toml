@@ -47,6 +47,8 @@ primitives.workspace = true
 sqlite_tasks.workspace = true
 tokens.workspace = true
 url_utils.workspace = true
+wan_client.workspace = true
+seedance_client.workspace = true
 web_base64.workspace = true
 worldlabs_consumer_client.workspace = true
 

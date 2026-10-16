@@ -7,6 +7,10 @@ export enum ProviderCredentialKey {
   ReplicateApiKey = "replicate_api_key",
   GmiCloudApiKey = "gmicloud_api_key",
   GrokApiKey = "grok_api_key",
+  WanBaseUrl = "wan_base_url",
+  WanApiKey = "wan_api_key",
+  SeedanceBaseUrl = "seedance_base_url",
+  SeedanceApiKey = "seedance_api_key",
 }
 
 export enum ProviderCredentialType {

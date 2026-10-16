@@ -9,12 +9,7 @@ use serde_derive::Serialize;
 use tauri::State;
 
 /// All known credential keys. Add new ones here as providers are added.
-const ALL_KEYS: &[ProviderCredentialKey] = &[
-  ProviderCredentialKey::FalApiKey,
-  ProviderCredentialKey::ReplicateApiKey,
-  ProviderCredentialKey::GmiCloudApiKey,
-  ProviderCredentialKey::GrokApiKey,
-];
+const ALL_KEYS: &[ProviderCredentialKey] = &[ProviderCredentialKey::GrokApiKey, ProviderCredentialKey::WanBaseUrl, ProviderCredentialKey::WanApiKey, ProviderCredentialKey::SeedanceBaseUrl, ProviderCredentialKey::SeedanceApiKey];
 
 const REDACTED_KEY_VISIBLE_CHARS: usize = 6;
 
@@ -40,9 +35,7 @@ pub struct ProviderCredentialDetails {
 }
 
 #[tauri::command]
-pub async fn provider_list_command(
-  credential_cache: State<'_, ProviderCredentialLoadingCache>,
-) -> ResponseOrErrorMessage<ProviderListResponse> {
+pub async fn provider_list_command(credential_cache: State<'_, ProviderCredentialLoadingCache>) -> ResponseOrErrorMessage<ProviderListResponse> {
   info!("provider_list_command called");
 
   let mut providers = Vec::with_capacity(ALL_KEYS.len());
@@ -53,28 +46,29 @@ pub async fn provider_list_command(
       Err(err) => {
         warn!("Error checking credential for {:?}: {:?}", key, err);
         None
-      }
+      },
     };
 
     let has_credentials = maybe_payload.is_some();
 
     let maybe_details = maybe_payload.map(|payload| match payload {
-      ProviderCredentialPayload::ApiKey(data) => {
-        ProviderCredentialDetails {
-          maybe_key_start: Some(redact_key(data.as_str())),
-        }
-      }
+      ProviderCredentialPayload::ApiKey(data) => ProviderCredentialDetails { maybe_key_start: Some(display_value(key, data.as_str())) },
     });
 
-    providers.push(ProviderListEntry {
-      provider_credential: key,
-      credential_type: key.get_type(),
-      has_credentials,
-      maybe_details,
-    });
+    providers.push(ProviderListEntry { provider_credential: key, credential_type: key.get_type(), has_credentials, maybe_details });
   }
 
   Ok(ProviderListResponse { providers }.into())
+}
+
+/// The value to surface for a stored credential. Secrets are redacted to their
+/// first few characters; non-secrets (e.g. the Wan base URL) are shown in full.
+fn display_value(key: ProviderCredentialKey, value: &str) -> String {
+  if key.is_secret() {
+    redact_key(value)
+  } else {
+    value.to_string()
+  }
 }
 
 fn redact_key(key: &str) -> String {

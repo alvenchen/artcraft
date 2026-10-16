@@ -17,6 +17,8 @@ pub enum GenerationServiceProvider {
   Picsart,
   Pixverse,
   Runway,
+  Wan,
+  Seedance,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -34,7 +36,7 @@ pub enum GenerationModel {
   FluxPro11,
   #[serde(rename = "flux_pro_1.1_ultra")]
   FluxPro11Ultra,
-  
+
   #[serde(rename = "flux_pro_kontext_max")]
   FluxProKontextMax,
   #[serde(rename = "gpt_image_1")]

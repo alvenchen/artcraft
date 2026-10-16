@@ -1,3 +1,5 @@
+use log::error;
+
 use crate::core::state::app_preferences::app_preferences_serializable::AppPreferencesSerializable;
 use crate::core::state::app_preferences::preferred_download_directory::{PreferredDownloadDirectory, SystemDownloadDirectory};
 use crate::core::state::app_preferences::preferred_download_filename::PreferredDownloadFilename;
@@ -16,6 +18,10 @@ pub struct AppPreferences {
   /// Play sounds on events.
   pub play_sounds: bool,
 
+  /// Route generation through the user's own provider API keys (Settings → API
+  /// Keys) when configured, falling back to the Artcraft backend otherwise.
+  pub use_own_api_keys: bool,
+
   /// Key pointing to file; defined in the frontend code.
   pub delete_file_sound: Option<String>,
 
@@ -26,13 +32,13 @@ pub struct AppPreferences {
   /// Key pointing to file; defined in the frontend code.
   /// Defined for enqueue since image enqueue can be async
   pub enqueue_failure_sound: Option<String>,
-  
+
   /// Key pointing to file; defined in the frontend code.
   pub generation_success_sound: Option<String>,
-  
+
   /// Key pointing to file; defined in the frontend code.
   pub generation_failure_sound: Option<String>,
-  
+
   /// Key pointing to file; defined in the frontend code.
   #[deprecated]
   pub generation_enqueue_sound: Option<String>,
@@ -45,6 +51,7 @@ impl Default for AppPreferences {
       preferred_download_filename: PreferredDownloadFilename::default(),
       auto_download: false,
       play_sounds: true,
+      use_own_api_keys: false,
       // NB: These are defined in the frontend.
       enqueue_success_sound: Some("done".to_string()),
       enqueue_failure_sound: Some("spike_throw".to_string()),
@@ -64,19 +71,15 @@ impl AppPreferences {
     }
 
     match AppPreferencesSerializable::load_from_file(data_root) {
-      Ok(Some(serializable)) => {
-        serializable.to_preferences()
-      }
-      Ok(None) => {
-        Self::default()
-      }
+      Ok(Some(serializable)) => serializable.to_preferences(),
+      Ok(None) => Self::default(),
       Err(err) => {
-        println!("Error loading app preferences: {}", err);
+        error!("Error loading app preferences: {}", err);
         Self::default()
-      }
+      },
     }
   }
-  
+
   pub fn to_serializable(&self) -> AppPreferencesSerializable {
     AppPreferencesSerializable::from_preferences(self)
   }

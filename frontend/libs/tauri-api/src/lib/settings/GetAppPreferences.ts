@@ -13,6 +13,9 @@ export interface AppPreferencesPayload {
   // Play sounds on events.
   play_sounds: boolean,
 
+  // Route generation through the user's own provider API keys when set.
+  use_own_api_keys: boolean,
+
   // Sound names to play. 
   // These are keys, not filenames, and are defined by the frontend.
   delete_file_sound?: string,

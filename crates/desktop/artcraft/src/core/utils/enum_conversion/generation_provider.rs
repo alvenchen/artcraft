@@ -18,5 +18,7 @@ pub fn to_generation_service_provider(provider: GenerationProvider) -> Generatio
     GenerationProvider::Picsart => GenerationServiceProvider::Picsart,
     GenerationProvider::Pixverse => GenerationServiceProvider::Pixverse,
     GenerationProvider::Runway => GenerationServiceProvider::Runway,
+    GenerationProvider::Wan => GenerationServiceProvider::Wan,
+    GenerationProvider::Seedance => GenerationServiceProvider::Seedance,
   }
 }

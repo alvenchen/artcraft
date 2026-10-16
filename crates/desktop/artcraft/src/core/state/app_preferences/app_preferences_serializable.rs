@@ -9,13 +9,14 @@ use serde_derive::{Deserialize, Serialize};
 /// - Version 1 - initial version.
 /// - Version 2 - added "delete_file_sound", marked optionals "skip_serializing_if"
 /// - Version 3 - added auto download and filename convention.
-const CURRENT_VERSION: &str = "3";
+/// - Version 4 - added "use_own_api_keys".
+const CURRENT_VERSION: &str = "4";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppPreferencesSerializable {
   /// Versioning string.
   pub version: String,
-  
+
   /// The downloads directory to use when a user downloads a file.
   pub preferred_download_directory: Option<PreferredDownloadDirectory>,
 
@@ -29,6 +30,10 @@ pub struct AppPreferencesSerializable {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub play_sounds: Option<bool>,
 
+  /// Route generation through the user's own provider API keys when set.
+  #[serde(rename = "use_own_api_keys", skip_serializing_if = "Option::is_none")]
+  pub maybe_use_own_api_keys: Option<bool>,
+
   /// Key pointing to file; defined in the frontend code.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub delete_file_sound: Option<String>,
@@ -36,11 +41,11 @@ pub struct AppPreferencesSerializable {
   /// Key pointing to file; defined in the frontend code.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub generation_success_sound: Option<String>,
-  
+
   /// Key pointing to file; defined in the frontend code.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub generation_failure_sound: Option<String>,
-  
+
   /// Key pointing to file; defined in the frontend code.
   #[serde(skip_serializing_if = "Option::is_none")]
   pub generation_enqueue_sound: Option<String>,
@@ -59,17 +64,7 @@ impl AppPreferencesSerializable {
   }
 
   pub fn from_preferences(preferences: &AppPreferences) -> Self {
-    Self {
-      version: CURRENT_VERSION.to_string(),
-      preferred_download_directory: Some(preferences.preferred_download_directory.clone()),
-      maybe_preferred_download_filename: Some(preferences.preferred_download_filename.clone()),
-      maybe_auto_download: Some(preferences.auto_download),
-      play_sounds: Some(preferences.play_sounds),
-      delete_file_sound: preferences.delete_file_sound.clone(),
-      generation_success_sound: preferences.generation_success_sound.clone(),
-      generation_failure_sound: preferences.generation_failure_sound.clone(),
-      generation_enqueue_sound: preferences.generation_enqueue_sound.clone(),
-    }
+    Self { version: CURRENT_VERSION.to_string(), preferred_download_directory: Some(preferences.preferred_download_directory.clone()), maybe_preferred_download_filename: Some(preferences.preferred_download_filename.clone()), maybe_auto_download: Some(preferences.auto_download), play_sounds: Some(preferences.play_sounds), maybe_use_own_api_keys: Some(preferences.use_own_api_keys), delete_file_sound: preferences.delete_file_sound.clone(), generation_success_sound: preferences.generation_success_sound.clone(), generation_failure_sound: preferences.generation_failure_sound.clone(), generation_enqueue_sound: preferences.generation_enqueue_sound.clone() }
   }
 
   pub fn to_preferences(&self) -> AppPreferences {
@@ -88,6 +83,9 @@ impl AppPreferencesSerializable {
     }
     if let Some(auto_download) = self.maybe_auto_download {
       preferences.auto_download = auto_download;
+    }
+    if let Some(use_own_api_keys) = self.maybe_use_own_api_keys {
+      preferences.use_own_api_keys = use_own_api_keys;
     }
 
     preferences.delete_file_sound = self.delete_file_sound.clone();
@@ -108,7 +106,8 @@ mod tests {
     let old: AppPreferencesSerializable = serde_json::from_value(serde_json::json!({
       "version": "2", "preferred_download_directory": { "custom": "/my/downloads" },
       "play_sounds": false, "generation_success_sound": "special_flower",
-    })).unwrap();
+    }))
+    .unwrap();
     let prefs = old.to_preferences();
     assert!(!prefs.auto_download);
     assert_eq!(prefs.preferred_download_filename, PreferredDownloadFilename::ArtcraftConvention);
@@ -119,12 +118,7 @@ mod tests {
 
   #[test]
   fn download_preferences_round_trip_without_changing_existing_fields() {
-    let prefs = AppPreferences {
-      auto_download: true,
-      preferred_download_filename: PreferredDownloadFilename::Custom("{model}_{date}".into()),
-      preferred_download_directory: PreferredDownloadDirectory::Custom("/my/downloads".into()),
-      ..AppPreferences::default()
-    };
+    let prefs = AppPreferences { auto_download: true, preferred_download_filename: PreferredDownloadFilename::Custom("{model}_{date}".into()), preferred_download_directory: PreferredDownloadDirectory::Custom("/my/downloads".into()), ..AppPreferences::default() };
     let json = serde_json::to_value(prefs.to_serializable()).unwrap();
     assert_eq!(json["auto_download"], true);
     assert_eq!(json["preferred_download_filename"]["custom_format"], "{model}_{date}");

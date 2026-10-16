@@ -17,4 +17,6 @@ export enum GenerationProvider {
   Picsart = "picsart",
   Pixverse = "pixverse",
   Runway = "runway",
+  Wan = "wan",
+  Seedance = "seedance",
 }

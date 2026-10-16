@@ -11,6 +11,8 @@ use midjourney_client::error::midjourney_error::MidjourneyError;
 use openai_sora_client::error::sora_error::SoraError;
 use artcraft_client::error::storyteller_error::StorytellerError;
 use artcraft_router::errors::download_error::DownloadError;
+use seedance_client::error::seedance_error::SeedanceError;
+use wan_client::error::wan_error::WanError;
 use worldlabs_consumer_client::error::world_labs_error::WorldLabsError;
 //use fal_client::error::fal_error_plus::FalErrorPlus;
 
@@ -22,10 +24,10 @@ pub enum GenerateError {
 
   /// We couldn't find a provider to dispatch the request to.
   NoProviderAvailable,
-  
+
   /// We pulled out Fal (for now) - it's impacting build speeds. We'll add it in the future.
   FalNoLongerSupported,
-  
+
   /// Wrong provider for the model
   BadProviderForModel {
     provider: GenerationProvider,
@@ -58,16 +60,8 @@ pub enum BadInputReason {
   Base64DecodeError,
   BothImageMaskMediaTokenAndBytesSupplied,
   CannotDetermineImageMimeType,
-  InvalidNumberOfInputImages {
-    provided: u32,
-    min: u32,
-    max: u32,
-  },
-  InvalidNumberOfRequestedImages {
-    requested: u32,
-    min: u32,
-    max: u32,
-  },
+  InvalidNumberOfInputImages { provided: u32, min: u32, max: u32 },
+  InvalidNumberOfRequestedImages { requested: u32, min: u32, max: u32 },
   NoModelSpecified,
   RequiredSourceImageMaskNotProvided,
   RequiredSourceImageNotProvided,
@@ -83,6 +77,8 @@ pub enum MissingCredentialsReason {
   NeedsMidjourneyUserInfo,
   NeedsSoraCredentials,
   NeedsStorytellerCredentials,
+  NeedsWanApiKey,
+  NeedsSeedanceApiKey,
   NeedsWorldLabsCredentials,
 }
 
@@ -111,11 +107,12 @@ pub enum ProviderFailureReason {
   MidjourneyJobEnqueueFailed,
   SoraError(SoraError),
   StorytellerError(StorytellerError),
+  WanError(WanError),
+  SeedanceError(SeedanceError),
   WorldLabsError(WorldLabsError),
 }
 
 impl GenerateError {
-
   //
   // Bad input
   //
@@ -158,6 +155,14 @@ impl GenerateError {
 
   pub fn needs_storyteller_credentials() -> Self {
     Self::MissingCredentials(MissingCredentialsReason::NeedsStorytellerCredentials)
+  }
+
+  pub fn needs_wan_api_key() -> Self {
+    Self::MissingCredentials(MissingCredentialsReason::NeedsWanApiKey)
+  }
+
+  pub fn needs_seedance_api_key() -> Self {
+    Self::MissingCredentials(MissingCredentialsReason::NeedsSeedanceApiKey)
   }
 
   pub fn needs_worldlabs_credentials() -> Self {
@@ -222,6 +227,18 @@ impl From<StorytellerError> for GenerateError {
 impl From<WorldLabsError> for GenerateError {
   fn from(value: WorldLabsError) -> Self {
     Self::ProviderFailure(ProviderFailureReason::WorldLabsError(value))
+  }
+}
+
+impl From<WanError> for GenerateError {
+  fn from(value: WanError) -> Self {
+    Self::ProviderFailure(ProviderFailureReason::WanError(value))
+  }
+}
+
+impl From<SeedanceError> for GenerateError {
+  fn from(value: SeedanceError) -> Self {
+    Self::ProviderFailure(ProviderFailureReason::SeedanceError(value))
   }
 }
 

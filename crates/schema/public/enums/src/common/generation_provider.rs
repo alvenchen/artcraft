@@ -34,6 +34,8 @@ pub enum GenerationProvider {
   Picsart,
   Pixverse,
   Runway,
+  Wan,
+  Seedance,
 }
 
 impl_enum_display_and_debug_using_to_str!(GenerationProvider);
@@ -62,6 +64,8 @@ impl GenerationProvider {
       Self::Picsart => "picsart",
       Self::Pixverse => "pixverse",
       Self::Runway => "runway",
+      Self::Wan => "wan",
+      Self::Seedance => "seedance",
     }
   }
 
@@ -81,6 +85,8 @@ impl GenerationProvider {
       "picsart" => Ok(Self::Picsart),
       "pixverse" => Ok(Self::Pixverse),
       "runway" => Ok(Self::Runway),
+      "wan" => Ok(Self::Wan),
+      "seedance" => Ok(Self::Seedance),
       _ => Err(EnumError::CouldNotConvertFromString(value.to_string())),
     }
   }
@@ -103,6 +109,8 @@ impl GenerationProvider {
       Self::Picsart,
       Self::Pixverse,
       Self::Runway,
+      Self::Wan,
+      Self::Seedance,
     ])
   }
 }
@@ -132,6 +140,8 @@ mod tests {
       assert_serialization(GenerationProvider::Picsart, "picsart");
       assert_serialization(GenerationProvider::Pixverse, "pixverse");
       assert_serialization(GenerationProvider::Runway, "runway");
+      assert_serialization(GenerationProvider::Wan, "wan");
+      assert_serialization(GenerationProvider::Seedance, "seedance");
     }
 
     #[test]
@@ -150,6 +160,8 @@ mod tests {
       assert_eq!(GenerationProvider::Picsart.to_str(), "picsart");
       assert_eq!(GenerationProvider::Pixverse.to_str(), "pixverse");
       assert_eq!(GenerationProvider::Runway.to_str(), "runway");
+      assert_eq!(GenerationProvider::Wan.to_str(), "wan");
+      assert_eq!(GenerationProvider::Seedance.to_str(), "seedance");
     }
 
     #[test]
@@ -168,6 +180,8 @@ mod tests {
       assert_eq!(GenerationProvider::from_str("picsart").unwrap(), GenerationProvider::Picsart);
       assert_eq!(GenerationProvider::from_str("pixverse").unwrap(), GenerationProvider::Pixverse);
       assert_eq!(GenerationProvider::from_str("runway").unwrap(), GenerationProvider::Runway);
+      assert_eq!(GenerationProvider::from_str("wan").unwrap(), GenerationProvider::Wan);
+      assert_eq!(GenerationProvider::from_str("seedance").unwrap(), GenerationProvider::Seedance);
     }
 
     #[test]
@@ -184,7 +198,7 @@ mod tests {
     #[test]
     fn all_variants() {
       let mut variants = GenerationProvider::all_variants();
-      assert_eq!(variants.len(), 14);
+      assert_eq!(variants.len(), 16);
       assert_eq!(variants.pop_first(), Some(GenerationProvider::Artcraft));
       assert_eq!(variants.pop_first(), Some(GenerationProvider::Fal));
       assert_eq!(variants.pop_first(), Some(GenerationProvider::Grok));
@@ -199,6 +213,8 @@ mod tests {
       assert_eq!(variants.pop_first(), Some(GenerationProvider::Picsart));
       assert_eq!(variants.pop_first(), Some(GenerationProvider::Pixverse));
       assert_eq!(variants.pop_first(), Some(GenerationProvider::Runway));
+      assert_eq!(variants.pop_first(), Some(GenerationProvider::Wan));
+      assert_eq!(variants.pop_first(), Some(GenerationProvider::Seedance));
       assert_eq!(variants.pop_first(), None);
     }
   }

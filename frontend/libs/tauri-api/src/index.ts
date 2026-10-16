@@ -35,6 +35,7 @@ export * from "./lib/providers/ProviderCredentialKey.js";
 export * from "./lib/providers/ListProviderCredentials.js";
 export * from "./lib/providers/SetProviderApiKey.js";
 export * from "./lib/providers/ClearProviderCredential.js";
+export * from "./lib/providers/WanListModels.js";
 export * from "./lib/settings/GetAppPreferences.js";
 export * from "./lib/settings/UpdateAppPreference.js";
 export * from "./lib/sora/CheckSoraSession.js";

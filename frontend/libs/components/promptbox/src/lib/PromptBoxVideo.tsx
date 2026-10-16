@@ -1,64 +1,64 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
-import { useSignals } from "@preact/signals-react/runtime";
-import { JobContextType } from "@storyteller/common";
-import { PopoverMenu, PopoverItem } from "@storyteller/ui-popover";
-import { SliderV2 } from "@storyteller/ui-sliderv2";
-import { Tooltip } from "@storyteller/ui-tooltip";
-import {
-  ToggleButton,
-  GenerateIconButton,
-  NEUTRAL_BUTTON_HOVER_CLASSES,
-} from "@storyteller/ui-button";
-import { GenerateVideo, GenerateVideoRequest, commandErrorMessage } from "@storyteller/tauri-api";
-import { AudioLinesIcon, ChevronDownIcon, ChevronUpIcon, ClockIcon, InfoIcon } from "lucide-react";
-import { DynamicIcon } from "@storyteller/icons";
 import { arrayMove } from "@dnd-kit/sortable";
+import { useSignals } from "@preact/signals-react/runtime";
+import { CharactersApi } from "@storyteller/api";
+import { GenerationProvider } from "@storyteller/api-enums";
+import { JobContextType } from "@storyteller/common";
+import { gtagEvent } from "@storyteller/google-analytics";
+import { DynamicIcon } from "@storyteller/icons";
 import {
-  resolveVideoDuration,
-  resolveVideoGenerationCount,
-  resolveVideoOutputFormat,
-  videoGenerationCounts,
-  videoDurationRange,
-  videoResolutionValue,
-  effectivePromptMaxLength,
   SizeIconOption,
   SizeOption,
   VideoModel,
+  effectivePromptMaxLength,
+  resolveVideoDuration,
+  resolveVideoGenerationCount,
+  resolveVideoOutputFormat,
+  videoDurationRange,
+  videoGenerationCounts,
+  videoResolutionValue,
 } from "@storyteller/model-list";
+import { GenerateVideo, GenerateVideoRequest, commandErrorMessage } from "@storyteller/tauri-api";
 import {
-  usePromptVideoStore,
-  RefImage,
-  VideoInputMode,
-  useCharactersStore,
-  StoredCharacter,
-  useEnterToGenerateStore,
-} from "./promptStore";
-import { gtagEvent } from "@storyteller/google-analytics";
+  GenerateIconButton,
+  NEUTRAL_BUTTON_HOVER_CLASSES,
+  ToggleButton,
+} from "@storyteller/ui-button";
+import { PopoverItem, PopoverMenu } from "@storyteller/ui-popover";
+import { SliderV2 } from "@storyteller/ui-sliderv2";
+import { toast } from "@storyteller/ui-toaster";
+import { Tooltip } from "@storyteller/ui-tooltip";
+import { AudioLinesIcon, ChevronDownIcon, ChevronUpIcon, ClockIcon, InfoIcon } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { twMerge } from "tailwind-merge";
+import { CharactersModal } from "./CharactersModal";
 import type { UploadImageFn } from "./ImagePromptRow";
-import { ReferenceDeck } from "./deck/ReferenceDeck";
+import type { MentionItem } from "./MentionTextarea";
+import { MentionTextarea } from "./MentionTextarea";
+import { PromptClearAllButton } from "./PromptClearAllButton";
+import { PromptFullscreenButton } from "./PromptFullscreenButton";
+import {
+  PromptFullscreenModal,
+  useFullscreenPrompt,
+} from "./PromptFullscreenModal";
+import { AspectRatioIcon } from "./common/AspectRatioIcon";
+import { VideoGenerationCountPicker } from "./common/VideoGenerationCountPicker";
 import { KeyframeCards } from "./deck/KeyframeCards";
+import { ReferenceDeck } from "./deck/ReferenceDeck";
+import { DeckAddAction, DeckItem } from "./deck/deckTypes";
 import { useDeckMedia } from "./deck/useDeckMedia";
 import {
   PromptBoxDropOverlay,
   usePromptBoxDrop,
   type DroppedFiles,
 } from "./deck/usePromptBoxDrop";
-import { DeckAddAction, DeckItem } from "./deck/deckTypes";
-import { AspectRatioIcon } from "./common/AspectRatioIcon";
-import { VideoGenerationCountPicker } from "./common/VideoGenerationCountPicker";
-import { twMerge } from "tailwind-merge";
-import { toast } from "@storyteller/ui-toaster";
-import { GenerationProvider } from "@storyteller/api-enums";
-import { CharactersModal } from "./CharactersModal";
-import { CharactersApi } from "@storyteller/api";
-import { MentionTextarea } from "./MentionTextarea";
-import type { MentionItem } from "./MentionTextarea";
 import {
-  PromptFullscreenModal,
-  useFullscreenPrompt,
-} from "./PromptFullscreenModal";
-import { PromptFullscreenButton } from "./PromptFullscreenButton";
-import { PromptClearAllButton } from "./PromptClearAllButton";
+  RefImage,
+  StoredCharacter,
+  VideoInputMode,
+  useCharactersStore,
+  useEnterToGenerateStore,
+  usePromptVideoStore,
+} from "./promptStore";
 
 declare global {
   interface Window {
@@ -196,7 +196,7 @@ export const PromptBoxVideo = ({
           );
         }
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => storeSetLoaded(true));
   }, [charactersLoaded, storeSetCharacters, storeSetLoaded]);
 
@@ -276,7 +276,7 @@ export const PromptBoxVideo = ({
 
   // Held in a ref so the window.resize listener (installed once) always
   // invokes the latest closure — picks up current `isExpanded`, refs, etc.
-  const applyHeightsRef = useRef<() => void>(() => {});
+  const applyHeightsRef = useRef<() => void>(() => { });
   applyHeightsRef.current = () => {
     const el = (mentionEditorRef.current ??
       textareaRef.current) as HTMLElement | null;
@@ -437,9 +437,9 @@ export const PromptBoxVideo = ({
   const resolutionPickerOptions: PopoverItem[] | null =
     selectedModel?.resolutionOptions
       ? selectedModel.resolutionOptions.map((r) => ({
-          label: r,
-          selected: r === resolution,
-        }))
+        label: r,
+        selected: r === resolution,
+      }))
       : null;
 
   const handleResolutionSelect = (selectedItem: PopoverItem) => {
@@ -449,17 +449,17 @@ export const PromptBoxVideo = ({
   const inputModeOptions: PopoverItem[] | null =
     selectedModel?.supportsReferenceMode
       ? [
-          {
-            label: "Keyframe",
-            description: "First/Last frame",
-            selected: inputMode === "keyframe",
-          },
-          {
-            label: "Omni Reference",
-            description: "Multi-media ref",
-            selected: inputMode === "reference",
-          },
-        ]
+        {
+          label: "Keyframe",
+          description: "First/Last frame",
+          selected: inputMode === "keyframe",
+        },
+        {
+          label: "Omni Reference",
+          description: "Multi-media ref",
+          selected: inputMode === "reference",
+        },
+      ]
       : null;
 
   const handleInputModeSelect = (selectedItem: PopoverItem) => {
@@ -589,14 +589,14 @@ export const PromptBoxVideo = ({
       })),
       ...(deck.uploadingVideo
         ? [
-            {
-              id: deck.uploadingVideo.id,
-              kind: "video" as const,
-              url: deck.uploadingVideo.previewUrl,
-              name: `Video ${referenceVideos.length + 1}`,
-              uploading: true,
-            },
-          ]
+          {
+            id: deck.uploadingVideo.id,
+            kind: "video" as const,
+            url: deck.uploadingVideo.previewUrl,
+            name: `Video ${referenceVideos.length + 1}`,
+            uploading: true,
+          },
+        ]
         : []),
       ...referenceAudios.map((audio, i) => ({
         id: audio.id,
@@ -607,13 +607,13 @@ export const PromptBoxVideo = ({
       })),
       ...(deck.uploadingAudio
         ? [
-            {
-              id: deck.uploadingAudio.id,
-              kind: "audio" as const,
-              name: `Audio ${referenceAudios.length + 1}`,
-              uploading: true,
-            },
-          ]
+          {
+            id: deck.uploadingAudio.id,
+            kind: "audio" as const,
+            name: `Audio ${referenceAudios.length + 1}`,
+            uploading: true,
+          },
+        ]
         : []),
     ],
     [
@@ -725,38 +725,38 @@ export const PromptBoxVideo = ({
 
   const firstFrameItem: DeckItem | undefined = referenceImages[0]
     ? {
-        id: referenceImages[0].id,
-        kind: "image",
-        url: referenceImages[0].url,
-        previewUrl: referenceImages[0].fullUrl ?? referenceImages[0].url,
-        name: "First frame",
-      }
+      id: referenceImages[0].id,
+      kind: "image",
+      url: referenceImages[0].url,
+      previewUrl: referenceImages[0].fullUrl ?? referenceImages[0].url,
+      name: "First frame",
+    }
     : deck.uploadingImages[0]
       ? {
-          id: deck.uploadingImages[0].id,
-          kind: "image",
-          url: deck.uploadingImages[0].previewUrl,
-          name: "First frame",
-          uploading: true,
-        }
+        id: deck.uploadingImages[0].id,
+        kind: "image",
+        url: deck.uploadingImages[0].previewUrl,
+        name: "First frame",
+        uploading: true,
+      }
       : undefined;
 
   const lastFrameItem: DeckItem | undefined = endFrameImage
     ? {
-        id: endFrameImage.id,
-        kind: "image",
-        url: endFrameImage.url,
-        previewUrl: endFrameImage.fullUrl ?? endFrameImage.url,
-        name: "Last frame",
-      }
+      id: endFrameImage.id,
+      kind: "image",
+      url: endFrameImage.url,
+      previewUrl: endFrameImage.fullUrl ?? endFrameImage.url,
+      name: "Last frame",
+    }
     : deck.uploadingEnd
       ? {
-          id: deck.uploadingEnd.id,
-          kind: "image",
-          url: deck.uploadingEnd.previewUrl,
-          name: "Last frame",
-          uploading: true,
-        }
+        id: deck.uploadingEnd.id,
+        kind: "image",
+        url: deck.uploadingEnd.previewUrl,
+        name: "Last frame",
+        uploading: true,
+      }
       : undefined;
 
   const handleSwapFrames = () => {
@@ -849,22 +849,22 @@ export const PromptBoxVideo = ({
   const mentionItems = [
     ...(isReferenceMode
       ? [
-          ...referenceImages.map((img, i) => ({
-            label: `@Image${i + 1}`,
-            type: "image" as const,
-            preview: img.url,
-          })),
-          ...referenceVideos.map((vid, i) => ({
-            label: `@Video${i + 1}`,
-            type: "video" as const,
-            preview: vid.url,
-          })),
-          ...referenceAudios.map((_aud, i) => ({
-            label: `@Audio${i + 1}`,
-            type: "audio" as const,
-            preview: undefined as string | undefined,
-          })),
-        ]
+        ...referenceImages.map((img, i) => ({
+          label: `@Image${i + 1}`,
+          type: "image" as const,
+          preview: img.url,
+        })),
+        ...referenceVideos.map((vid, i) => ({
+          label: `@Video${i + 1}`,
+          type: "video" as const,
+          preview: vid.url,
+        })),
+        ...referenceAudios.map((_aud, i) => ({
+          label: `@Audio${i + 1}`,
+          type: "audio" as const,
+          preview: undefined as string | undefined,
+        })),
+      ]
       : []),
     ...activeCharacters.map((char) => ({
       label: `@${char.name}`,
@@ -882,22 +882,22 @@ export const PromptBoxVideo = ({
     () => [
       ...(isReferenceMode
         ? [
-            ...referenceImages.map((img, i) => ({
-              label: `@Image${i + 1}`,
-              type: "image" as const,
-              preview: img.url,
-            })),
-            ...referenceVideos.map((vid, i) => ({
-              label: `@Video${i + 1}`,
-              type: "video" as const,
-              preview: vid.url,
-            })),
-            ...referenceAudios.map((_aud, i) => ({
-              label: `@Audio${i + 1}`,
-              type: "audio" as const,
-              preview: undefined as string | undefined,
-            })),
-          ]
+          ...referenceImages.map((img, i) => ({
+            label: `@Image${i + 1}`,
+            type: "image" as const,
+            preview: img.url,
+          })),
+          ...referenceVideos.map((vid, i) => ({
+            label: `@Video${i + 1}`,
+            type: "video" as const,
+            preview: vid.url,
+          })),
+          ...referenceAudios.map((_aud, i) => ({
+            label: `@Audio${i + 1}`,
+            type: "audio" as const,
+            preview: undefined as string | undefined,
+          })),
+        ]
         : []),
       ...activeCharacters.map((char) => ({
         label: `@${char.name}`,
@@ -1203,6 +1203,7 @@ export const PromptBoxVideo = ({
         }
       }
 
+      console.log("promptBoxVideo:", request)
       return request;
     };
 
@@ -1355,7 +1356,7 @@ export const PromptBoxVideo = ({
           {selectedModel?.textToVideoSupported === false && (
             <div className="mb-2 flex items-center gap-1.5 bg-ui-controls/60 px-2.5 py-1.5 text-xs text-base-fg/70">
               <InfoIcon
-                
+
                 className="h-3 w-3 shrink-0" />
               <span>
                 This model can&apos;t generate from text alone - add a starting
@@ -1493,7 +1494,7 @@ export const PromptBoxVideo = ({
                     mode="default"
                     panelTitle="Duration"
                     triggerIcon={
-                      <ClockIcon  className="h-3.5 w-3.5" />
+                      <ClockIcon className="h-3.5 w-3.5" />
                     }
                     triggerLabel={`${effectiveDuration}s`}
                   >

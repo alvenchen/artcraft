@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import { LoaderCircleIcon, Trash2Icon } from "lucide-react";
 import { Button } from "@storyteller/ui-button";
 import { Input } from "@storyteller/ui-input";
+import { Switch } from "@storyteller/ui-switch";
 import {
   ClearProviderCredential,
+  GetAppPreferences,
   ListProviderCredentials,
+  PreferenceName,
   ProviderCredentialEntry,
   ProviderCredentialKey,
   SetProviderApiKey,
+  UpdateAppPreferences,
 } from "@storyteller/tauri-api";
 
 interface ProviderDescriptor {
@@ -15,33 +19,47 @@ interface ProviderDescriptor {
   name: string;
   helpText: string;
   placeholder: string;
+  isSecret: boolean;
 }
 
 // Order here is the display order in the pane.
 const PROVIDERS: ProviderDescriptor[] = [
   {
-    key: ProviderCredentialKey.FalApiKey,
-    name: "Fal",
-    helpText: "Keys start with a key id and secret, e.g. `xxx:yyy`.",
-    placeholder: "Enter your Fal API key",
-  },
-  {
-    key: ProviderCredentialKey.GmiCloudApiKey,
-    name: "GMI Cloud",
-    helpText: "Used for direct GMI Cloud video generation.",
-    placeholder: "Enter your GMI Cloud API key",
-  },
-  {
     key: ProviderCredentialKey.GrokApiKey,
     name: "Grok (xAI)",
     helpText: "xAI API key, separate from any Grok web login.",
     placeholder: "Enter your xAI API key",
+    isSecret: true,
   },
   {
-    key: ProviderCredentialKey.ReplicateApiKey,
-    name: "Replicate",
-    helpText: "Used for background removal and other Replicate models.",
-    placeholder: "Enter your Replicate API token",
+    key: ProviderCredentialKey.WanBaseUrl,
+    name: "Wan — base URL",
+    helpText:
+      "Base URL of your Wan-AI gateway. Models are read from {base}/models.",
+    placeholder: "https://your-gateway.example.com",
+    isSecret: false,
+  },
+  {
+    key: ProviderCredentialKey.WanApiKey,
+    name: "Wan — API key",
+    helpText: "API key for the Wan-AI gateway above.",
+    placeholder: "Enter your Wan API key",
+    isSecret: true,
+  },
+  {
+    key: ProviderCredentialKey.SeedanceBaseUrl,
+    name: "Seedance — base URL",
+    helpText:
+      "Volcano Engine (CN) or BytePlus (international) ARK API base URL, e.g. https://ark.cn-beijing.volces.com/api/v3 — or a ModelVerse base URL including its version prefix, e.g. https://api.modelverse.cn/v1.",
+    placeholder: "https://api.modelverse.cn/v1",
+    isSecret: false,
+  },
+  {
+    key: ProviderCredentialKey.SeedanceApiKey,
+    name: "Seedance — API key",
+    helpText: "API key for the endpoint above.",
+    placeholder: "Enter your Seedance API key",
+    isSecret: true,
   },
 ];
 
@@ -57,6 +75,29 @@ export const ProviderApiKeysSettingsPane = () => {
   const [busyKey, setBusyKey] = useState<ProviderCredentialKey | undefined>(
     undefined,
   );
+  const [useOwnApiKeys, setUseOwnApiKeys] = useState(false);
+
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      try {
+        const result = await GetAppPreferences();
+        setUseOwnApiKeys(result.preferences.use_own_api_keys ?? false);
+      } catch (e) {
+        console.error("Failed to load API keys preference", e);
+      }
+    };
+    fetchPreferences();
+  }, []);
+
+  const toggleUseOwnApiKeys = async (enabled: boolean) => {
+    try {
+      await UpdateAppPreferences({ preference: PreferenceName.UseOwnApiKeys, value: enabled });
+      setUseOwnApiKeys(enabled);
+    } catch (e) {
+      console.error("Failed to save API keys preference", e);
+      setErrorMessage("Failed to save API keys preference.");
+    }
+  };
 
   const refresh = async () => {
     setIsLoading(true);
@@ -117,6 +158,21 @@ export const ProviderApiKeysSettingsPane = () => {
         required.
       </p>
 
+      <div className="flex items-center justify-between gap-3 rounded-[3px] border border-ui-controls-border bg-base-fg/[0.03] p-3">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <span className="font-medium">Use my own API keys</span>
+          <span className="text-xs text-base-fg/60">
+            Generate directly with the provider keys below instead of the ArtCraft backend.
+          </span>
+        </div>
+        <Switch
+          id="use-own-api-keys"
+          label="Use my own API keys"
+          enabled={useOwnApiKeys}
+          setEnabled={toggleUseOwnApiKeys}
+        />
+      </div>
+
       {errorMessage && (
         <p className="text-xs text-red-500">{errorMessage}</p>
       )}
@@ -165,7 +221,7 @@ export const ProviderApiKeysSettingsPane = () => {
 
                 <div className="flex items-center gap-2">
                   <Input
-                    type="password"
+                    type={descriptor.isSecret ? "password" : "text"}
                     value={drafts[descriptor.key] ?? ""}
                     placeholder={descriptor.placeholder}
                     onChange={(e) =>

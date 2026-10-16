@@ -13,6 +13,8 @@ members = [
   "crates/api_clients/kinovi_web_client",
   "crates/api_clients/midjourney_client",
   "crates/api_clients/openai_sora_client",
+  "crates/api_clients/seedance_client",
+  "crates/api_clients/wan_client",
   "crates/api_clients/worldlabs_api_client",
   "crates/api_clients/worldlabs_consumer_client",
   "crates/desktop/artcraft",
@@ -81,6 +83,8 @@ test_utils = { path = "crates/testing/test_utils" }
 tokens = { path = "crates/schema/public/tokens" }
 url_utils = { path = "crates/lib/url_utils" }
 uuid_utils = { path = "crates/lib/uuid_utils" }
+seedance_client = { path = "crates/api_clients/seedance_client" }
+wan_client = { path = "crates/api_clients/wan_client" }
 web_base64 = { path = "crates/lib/data/web_base64" }
 worldlabs_api_client = { path = "crates/api_clients/worldlabs_api_client" }
 worldlabs_consumer_client = { path = "crates/api_clients/worldlabs_consumer_client" }

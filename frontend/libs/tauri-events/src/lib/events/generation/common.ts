@@ -2,6 +2,7 @@
 export enum GenerationServiceProvider {
   Sora = "sora",
   Fal = "fal",
+  Wan = "wan",
 }
 
 export enum GenerationModel {
