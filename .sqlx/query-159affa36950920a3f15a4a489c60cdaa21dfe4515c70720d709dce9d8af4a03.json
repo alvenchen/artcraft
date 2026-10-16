@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n    UPDATE tasks\n    SET task_status = ?,\n    on_failure_type = ?,\n    on_failure_message = ?,\n    updated_at = unixepoch('now')\n    WHERE id = ?\n  ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "159affa36950920a3f15a4a489c60cdaa21dfe4515c70720d709dce9d8af4a03"
+}

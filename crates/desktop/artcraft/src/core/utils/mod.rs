@@ -4,6 +4,7 @@ pub mod download_media_file_to_temp_dir;
 pub mod download_url_to_temp_dir;
 pub mod download_url_to_user_download_dir;
 pub mod enum_conversion;
+pub mod failure_classification;
 pub mod get_url_file_extension;
 pub mod image;
 pub mod large_file_transfer;

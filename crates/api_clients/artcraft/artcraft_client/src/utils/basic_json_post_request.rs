@@ -16,7 +16,10 @@ pub async fn basic_json_post_request<Req: Serialize, Res: DeserializeOwned>(
   maybe_creds: Option<&StorytellerCredentialSet>,
   request: Req,
 ) -> Result<Res, StorytellerError> {
+  return Ok(serde_json::from_str("null").map_err(|err| StorytellerError::Api(ApiError::from(err)))?);
 
+  // Temporarily disabled — basic_json_post_request body commented out.
+  /*
   let url = get_route(api_host, route_path);
 
   // NB: We record lightweight analytics telemetry to understand which areas
@@ -58,11 +61,11 @@ pub async fn basic_json_post_request<Req: Serialize, Res: DeserializeOwned>(
   let hostname = response.headers().get("x-backend-hostname")
       .and_then(|v| v.to_str().ok())
       .map(|s| s.to_owned());
-  
+
   let build_sha = response.headers().get("x-build-sha")
       .and_then(|v| v.to_str().ok())
       .map(|s| s.to_owned());
-  
+
   debug!("[server] x-backend-hostname: {:?}, x-build-sha: {:?}", hostname, build_sha);
 
   let response = filter_bad_response(response)
@@ -79,6 +82,7 @@ pub async fn basic_json_post_request<Req: Serialize, Res: DeserializeOwned>(
       .map_err(|err| StorytellerError::Api(ApiError::from(err)))?;
 
   Ok(response)
+  */
 }
 
 fn get_route(api_host: &ApiHost, route_path: &str) -> String {

@@ -103,6 +103,7 @@ pub async fn handle_worldlabs_marble(
     model: Some(GenerationModel::WorldlabsMarble),
     provider_job_id: Some(world_id.0),
     task_type: TaskType::ImageGeneration,
+    maybe_request_url: None,
     maybe_queue_status_url: None,
     maybe_prompt_token: None,
     maybe_queue_response_url: None,

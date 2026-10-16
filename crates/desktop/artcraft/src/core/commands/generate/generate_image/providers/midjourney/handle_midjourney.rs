@@ -48,7 +48,7 @@ pub async fn handle_midjourney(request: &TauriGenerateImageRequest, config: &App
   let GenerateImageResponse::Midjourney(response) = response else {
     return Err(bad_input("Unexpected Midjourney response"));
   };
-  Ok(TaskEnqueueSuccess { task_type: TaskType::ImageGeneration, model: Some(tauri_image_model_to_generation_model(model)), provider: GenerationProvider::Midjourney, provider_job_id: Some(response.job_id), maybe_queue_status_url: None, maybe_queue_response_url: None, maybe_prompt_token: Some(prompt.prompt_token) })
+  Ok(TaskEnqueueSuccess { task_type: TaskType::ImageGeneration, model: Some(tauri_image_model_to_generation_model(model)), provider: GenerationProvider::Midjourney, provider_job_id: Some(response.job_id), maybe_request_url: None, maybe_queue_status_url: None, maybe_queue_response_url: None, maybe_prompt_token: Some(prompt.prompt_token) })
 }
 
 fn has_image_inputs(request: &TauriGenerateImageRequest) -> bool {

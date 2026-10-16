@@ -176,6 +176,7 @@ pub async fn handle_sora_gpt_image_1_edit(
     model: Some(GenerationModel::GptImage1),
     provider: GenerationProvider::Sora,
     provider_job_id: Some(response.task_id.to_string()),
+    maybe_request_url: None,
     maybe_queue_status_url: None,
     maybe_prompt_token: None,
     maybe_queue_response_url: None,

@@ -197,6 +197,6 @@ mod tests {
   }
 
   fn task() -> Task {
-    Task { id: TaskId::generate(), status: TaskStatus::Pending, task_type: TaskType::ImageGeneration, model_type: Some(TaskModelType::Midjourney8), provider: GenerationProvider::Midjourney, provider_job_id: Some("test-job".to_string()), queue_status_url: None, queue_response_url: None, prompt_token: Some("prompt_test".to_string()), frontend_caller: None, frontend_subscriber_id: None, frontend_subscriber_payload: None }
+    Task { id: TaskId::generate(), status: TaskStatus::Pending, task_type: TaskType::ImageGeneration, model_type: Some(TaskModelType::Midjourney8), provider: GenerationProvider::Midjourney, provider_job_id: Some("test-job".to_string()), request_url: None, queue_status_url: None, queue_response_url: None, prompt_token: Some("prompt_test".to_string()), frontend_caller: None, frontend_subscriber_id: None, frontend_subscriber_payload: None }
   }
 }

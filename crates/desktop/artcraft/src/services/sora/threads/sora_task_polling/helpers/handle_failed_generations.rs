@@ -4,6 +4,7 @@ use crate::core::events::generation_events::generation_failed_event::GenerationF
 use crate::core::state::app_env_configs::app_env_configs::AppEnvConfigs;
 use crate::core::state::data_dir::app_data_root::AppDataRoot;
 use crate::core::state::task_database::TaskDatabase;
+use crate::core::utils::failure_classification::classify_failure_reason;
 use crate::services::sora::state::sora_task_queue::SoraTaskQueue;
 use crate::services::sora::threads::sora_task_polling::helpers::handle_successful_generations::GenerationItem;
 use enums::tauri::tasks::task_status;
@@ -12,7 +13,7 @@ use log::info;
 use openai_sora_client::requests::common::task_id::TaskId;
 use openai_sora_client::requests::list_classic_tasks::list_classic_tasks::PartialTaskResponse;
 use sqlite_tasks::queries::task::Task;
-use sqlite_tasks::queries::update_task_status::{update_task_status, UpdateTaskArgs};
+use sqlite_tasks::queries::update_task_status_with_rich_failure::{update_task_status_with_rich_failure, UpdateTaskWithRichFailureArgs};
 use std::collections::HashMap;
 use artcraft_client::credentials::storyteller_credential_set::StorytellerCredentialSet;
 use tauri::AppHandle;
@@ -44,12 +45,14 @@ pub async fn handle_classic_failed_generations(
 
     // Clear from SQLite task database.
     if let Some(local_task) = local_sqlite_tasks_by_sora_task_id.get(task_id.as_str()) {
-      info!("Marking local task as failed: {:?}", local_task.id);
+      info!("Marking local task as failed: {:?} (reason: {:?})", local_task.id, task.reason);
 
-      let _updated = update_task_status(UpdateTaskArgs {
+      let _updated = update_task_status_with_rich_failure(UpdateTaskWithRichFailureArgs {
         db: task_database.get_connection(),
         task_id: &local_task.id,
         status: task_status::TaskStatus::CompleteFailure,
+        maybe_failure_type: task.reason.as_deref().map(classify_failure_reason),
+        maybe_failure_message: task.reason.as_deref(),
       }).await?;
     }
   }

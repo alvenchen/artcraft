@@ -110,6 +110,7 @@ pub async fn handle_artcraft_nano_banana_inpaint(
     model: Some(GenerationModel::Gemini25Flash),
     provider_job_id: Some(job_id.to_string()),
     task_type: TaskType::ImageInpaintEdit,
+    maybe_request_url: None,
     maybe_queue_status_url: None,
     maybe_prompt_token: None,
     maybe_queue_response_url: None,

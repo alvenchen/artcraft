@@ -75,7 +75,7 @@ pub async fn generate(request: OmniRequest, modality: Modality, app: &AppHandle)
   record_usage(app, &request, modality, job_tokens.len());
   let database = app.state::<TaskDatabase>();
   for job_token in job_tokens {
-    let success = TaskEnqueueSuccess { task_type: modality.task_type(), model: model.clone().map(GenerationModel::Unknown), provider: GenerationProvider::Artcraft, provider_job_id: Some(job_token), maybe_queue_status_url: None, maybe_queue_response_url: None, maybe_prompt_token: None };
+    let success = TaskEnqueueSuccess { task_type: modality.task_type(), model: model.clone().map(GenerationModel::Unknown), provider: GenerationProvider::Artcraft, provider_job_id: Some(job_token), maybe_request_url: None, maybe_queue_status_url: None, maybe_queue_response_url: None, maybe_prompt_token: None };
     if let Err(err) = success.insert_into_task_database_with_frontend_payload(&database, request.frontend_caller, request.frontend_subscriber_id.as_deref(), request.frontend_subscriber_payload.as_deref()).await {
       // Generation has already been accepted. Do not encourage duplicate retries.
       error!("Could not persist accepted Omni generation: {:?}", err);

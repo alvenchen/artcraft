@@ -2,17 +2,24 @@ use crate::core::events::basic_sendable_event_trait::BasicSendableEvent;
 use crate::core::events::generation_events::common::{GenerationAction, GenerationServiceProvider};
 use crate::core::events::generation_events::generation_failed_event::GenerationFailedEvent;
 use crate::core::state::task_database::TaskDatabase;
+use crate::core::utils::failure_classification::classify_failure_reason;
 use enums::tauri::tasks::task_status::TaskStatus;
 use enums::tauri::tasks::task_type::TaskType;
 use log::{error, info};
 use sqlite_tasks::queries::task::Task;
-use sqlite_tasks::queries::update_task_status::{update_task_status, UpdateTaskArgs};
+use sqlite_tasks::queries::update_task_status_with_rich_failure::{update_task_status_with_rich_failure, UpdateTaskWithRichFailureArgs};
 use tauri::AppHandle;
 
 pub async fn handle_wan_failure(app_handle: &AppHandle, task_database: &TaskDatabase, task: &Task, reason: &str) {
   info!("[WanPolling] Marking task {} as failed: {}", task.id.as_str(), reason);
 
-  let update_result = update_task_status(UpdateTaskArgs { db: task_database.get_connection(), task_id: &task.id, status: TaskStatus::CompleteFailure }).await;
+  let update_result = update_task_status_with_rich_failure(UpdateTaskWithRichFailureArgs {
+    db: task_database.get_connection(),
+    task_id: &task.id,
+    status: TaskStatus::CompleteFailure,
+    maybe_failure_type: Some(classify_failure_reason(reason)),
+    maybe_failure_message: Some(reason),
+  }).await;
 
   if let Err(err) = update_result {
     error!("[WanPolling] Failed to update task status for {}: {:?}", task.id.as_str(), err);

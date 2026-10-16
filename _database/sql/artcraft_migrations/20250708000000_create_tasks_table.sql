@@ -23,6 +23,7 @@
 --      prompt_token
 --      queue_status_url
 --      queue_response_url
+--   tasks_v8.sqlite - added request_url (the URL the submit call was sent to)
 
 CREATE TABLE tasks (
     -- Task auto-incrementing primary key.
@@ -71,6 +72,12 @@ CREATE TABLE tasks (
 
     -- Whether the user has dismissed the task from view.
     is_dismissed_by_user INTEGER NOT NULL DEFAULT 0,
+
+    -- OPTIONAL.
+    -- The URL the submit request was actually sent to, for providers where we
+    -- build it from a user-configured base URL (eg. Seedance, Wan).
+    -- Recorded so a failed task can be traced back to the endpoint that was called.
+    request_url TEXT,
 
     -- OPTIONAL.
     -- For some third party systems (eg. FAL), the URL to check the status of the

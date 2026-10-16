@@ -23,7 +23,8 @@ pub async fn update_task_status(
   // TODO(bt,2025-07-15): We can't set a LIMIT without a certain compiler flag for SQLite ?
   let query = sqlx::query!(r#"
     UPDATE tasks
-    SET task_status = ?
+    SET task_status = ?,
+    updated_at = unixepoch('now')
     WHERE id = ?
   "#,
       status_temp,

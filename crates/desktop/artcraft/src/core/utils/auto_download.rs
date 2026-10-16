@@ -280,6 +280,7 @@ mod tests {
       model_type: Some(TaskModelType::Midjourney8),
       provider,
       provider_job_id: None,
+      request_url: None,
       queue_status_url: None,
       queue_response_url: None,
       prompt_token: None,

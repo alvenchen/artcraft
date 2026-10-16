@@ -124,6 +124,7 @@ pub async fn handle_artcraft_flux_kontext_edit(
     model: Some(GenerationModel::FluxProKontextMax),
     provider_job_id: Some(job_id.to_string()),
     task_type: TaskType::ImageGeneration,
+    maybe_request_url: None,
     maybe_queue_status_url: None,
     maybe_prompt_token: None,
     maybe_queue_response_url: None,

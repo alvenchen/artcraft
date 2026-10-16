@@ -4,6 +4,9 @@ use crate::error::SqliteTasksError;
 use enums::tauri::tasks::task_status::TaskStatus;
 use tokens::tokens::sqlite::tasks::TaskId;
 
+/// Upper bound on a stored failure message, in characters.
+const MAX_FAILURE_MESSAGE_CHARS: usize = 255;
+
 pub struct UpdateTaskWithRichFailureArgs<'a> {
   pub db: &'a TaskDbConnection,
   pub task_id: &'a TaskId,
@@ -22,9 +25,13 @@ pub async fn update_task_status_with_rich_failure(
   let status_temp = args.status.to_str();
   let maybe_failure_type_temp = args.maybe_failure_type.map(|val| val.to_str());
 
-  // Trim the message so it doesn't overflow the database column
+  // Trim the message so it doesn't overflow the database column.
+  // NB: Providers return arbitrary text (including multi-byte characters), so truncate on a
+  // character boundary -- slicing by byte offset would panic mid-character.
   let maybe_failure_message_temp = args.maybe_failure_message
-      .map(|s| if s.len() > 255 { &s[..255] } else { s });
+      .map(|s| s.char_indices()
+          .nth(MAX_FAILURE_MESSAGE_CHARS)
+          .map_or(s, |(byte_idx, _)| &s[..byte_idx]));
 
   // info!("Update task id: {}, status: {}", task_id_temp, status_temp);
 
@@ -33,7 +40,8 @@ pub async fn update_task_status_with_rich_failure(
     UPDATE tasks
     SET task_status = ?,
     on_failure_type = ?,
-    on_failure_message = ?
+    on_failure_message = ?,
+    updated_at = unixepoch('now')
     WHERE id = ?
   "#,
       status_temp,

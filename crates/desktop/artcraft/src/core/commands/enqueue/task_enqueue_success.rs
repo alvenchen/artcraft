@@ -15,6 +15,8 @@ pub struct TaskEnqueueSuccess {
   pub model: Option<GenerationModel>,
   pub provider: GenerationProvider,
   pub provider_job_id: Option<String>,
+  /// The URL the submit request was actually sent to, when the handler knows it.
+  pub maybe_request_url: Option<String>,
   pub maybe_queue_status_url: Option<String>,
   pub maybe_queue_response_url: Option<String>,
   pub maybe_prompt_token: Option<PromptToken>,
@@ -124,6 +126,6 @@ impl TaskEnqueueSuccess {
       Some(GenerationModel::Sora) => None,                                // TODO: unused elsewhere?
     };
 
-    create_task(CreateTaskArgs { db: task_database.get_connection(), status: TaskStatus::Pending, task_type: self.task_type, model_type, provider: self.provider, provider_job_id: self.provider_job_id.as_deref(), queue_status_url: self.maybe_queue_status_url.as_deref(), queue_response_url: self.maybe_queue_response_url.as_deref(), prompt_token: self.maybe_prompt_token.as_ref(), frontend_caller, frontend_subscriber_id, frontend_subscriber_payload }).await
+    create_task(CreateTaskArgs { db: task_database.get_connection(), status: TaskStatus::Pending, task_type: self.task_type, model_type, provider: self.provider, provider_job_id: self.provider_job_id.as_deref(), request_url: self.maybe_request_url.as_deref(), queue_status_url: self.maybe_queue_status_url.as_deref(), queue_response_url: self.maybe_queue_response_url.as_deref(), prompt_token: self.maybe_prompt_token.as_ref(), frontend_caller, frontend_subscriber_id, frontend_subscriber_payload }).await
   }
 }

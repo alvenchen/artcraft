@@ -76,6 +76,7 @@ pub(super) async fn handle_artcraft_video_via_router(
     model: Some(generation_model),
     provider: GenerationProvider::Artcraft,
     provider_job_id: Some(job_id),
+    maybe_request_url: None,
     maybe_queue_status_url: None,
     maybe_prompt_token: None,
     maybe_queue_response_url: None,

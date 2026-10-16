@@ -56,7 +56,12 @@ pub async fn handle_seedance_video(request: &OmniRequest, credential_cache: &Pro
     GenerateError::from(err)
   })?;
 
-  Ok(TaskEnqueueSuccess { task_type: TaskType::VideoGeneration, model: Some(GenerationModel::Unknown(model.to_string())), provider: GenerationProvider::Seedance, provider_job_id: Some(submitted.task_id), maybe_queue_status_url: None, maybe_queue_response_url: None, maybe_prompt_token: None })
+  // Record the endpoints this task actually used, so a failure can be traced
+  // back to the gateway that was called.
+  let request_url = base_url.submit_url();
+  let queue_status_url = base_url.task_url(&submitted.task_id);
+
+  Ok(TaskEnqueueSuccess { task_type: TaskType::VideoGeneration, model: Some(GenerationModel::Unknown(model.to_string())), provider: GenerationProvider::Seedance, provider_job_id: Some(submitted.task_id), maybe_request_url: Some(request_url), maybe_queue_status_url: Some(queue_status_url), maybe_queue_response_url: None, maybe_prompt_token: None })
 }
 
 /// Command-level entry point for the BYOK path: submit, persist to the task

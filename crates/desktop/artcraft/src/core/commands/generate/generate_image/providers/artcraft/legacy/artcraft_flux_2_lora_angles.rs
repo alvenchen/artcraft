@@ -81,6 +81,7 @@ pub async fn handle_flux_2_lora_angles(
     model: Some(GenerationModel::Flux2LoraAngles),
     provider: GenerationProvider::Artcraft,
     provider_job_id: Some(job_id),
+    maybe_request_url: None,
     maybe_queue_status_url: None,
     maybe_prompt_token: None,
     maybe_queue_response_url: None,
